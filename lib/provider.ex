@@ -50,7 +50,7 @@ defmodule ConfigTuples.Provider do
     persist(app, merged)
   end
 
-  defp persist(app, []), do: :ok
+  defp persist(_app, []), do: :ok
 
   defp persist(app, [{k, v} | rest]) do
     Application.put_env(app, k, v, persistent: true)

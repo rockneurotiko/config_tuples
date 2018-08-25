@@ -1,0 +1,4 @@
+%{
+  "artificery": {:hex, :artificery, "0.2.6", "f602909757263f7897130cbd006b0e40514a541b148d366ad65b89236b93497a", [:mix], [], "hexpm"},
+  "distillery": {:hex, :distillery, "2.0.5", "f387ea3fdec9f3e4216e8f8157760ba41bda1ce26c8986662ebb164a60a4658e", [:mix], [{:artificery, "~> 0.2", [hex: :artificery, repo: "hexpm", optional: false]}], "hexpm"},
+}
