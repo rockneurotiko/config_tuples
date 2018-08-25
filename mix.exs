@@ -12,7 +12,8 @@ defmodule ConfigTuples.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       docs: [
-        main: "README.md"
+        main: "readme",
+        extras: ["README.md"]
       ]
     ]
   end
