@@ -1,10 +1,16 @@
 # ConfigTuples for Distillery releases
 
+[![Hex.pm](https://img.shields.io/hexpm/v/config_tuples.svg)](http://hex.pm/packages/config_tuples)
+[![Hex.pm](https://img.shields.io/hexpm/dt/config_tuples.svg)](https://hex.pm/packages/config_tuples)
+[![Hex.pm](https://img.shields.io/hexpm/dw/config_tuples.svg)](https://hex.pm/packages/config_tuples)
+[![Inline docs](http://inch-ci.org/github/rockneurotiko/config_tuples.svg)](http://inch-ci.org/github/rockneurotiko/config_tuples)
+
+
 ConfigTuples provides a distillery's config provider that replace config tuples (e.g `{:system, value}`) to their expected runtime value.
 
 ## Usage
 
-Documentation can be found at [https://hexdocs.pm/config_tuples](https://hexdocs.pm/config_tuples).
+Documentation can be found at [https://hexdocs.pm/config_tuples](https://hexdocs.pm/config_tuples/readme.html).
 
 Add the package by adding `config_tuples` to your list of dependencies in `mix.exs`:
 

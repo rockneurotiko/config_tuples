@@ -39,7 +39,8 @@ defmodule ConfigTuples.MixProject do
   defp deps do
     [
       {:distillery, "~> 2.0", runtime: false},
-      {:ex_doc, "~> 0.18.0", only: :dev}
+      {:ex_doc, "~> 0.18.0", only: :dev},
+      {:inch_ex, ">= 0.0.0", only: :docs}
     ]
   end
 end
