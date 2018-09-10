@@ -38,15 +38,14 @@ will evaluate the current configuration for all the apps and replace the config 
 
 ## Config tuples
 
-The existing config tuples are:
+The config tuple always start with `:system`, and can have some options as keyword, the syntax are like this:
 
-- `{:system, env_name}` - Read the env_name from environment variables (Using `System.get_env/1`)
-- `{:system, env_name, default}` - The same as `{:system, env_name}` but with a default value if no environment variable is set.
-- `{:integer, value}` - Parse the value as integer. Value can be other config tuple.
-- `{:atom, value}` - Parse the value as atom. Value can be other config tuple.
-- `{:boolean, value}` - Parse the value as boolean. Value can be other config tuple.
+- `{:system, env_name}`
+- `{:system, env_name, opts}`
 
-With `:integer`, `:atom` and `:boolean` you can use another config tuples, for example: `{:integer, {:system, "MYSQL_PORT"}}`
+The available options are:
+- `type`: Type to cast the value, one of `:string`, `:integer`, `:atom`, `:boolean`. Default to `:string`
+- `default`: Default value if the environment variable is not setted. Default no `nil`
 
 ## Example
 
@@ -55,13 +54,13 @@ This could be an example for Ecto repository and logger:
 ``` elixir
 config :my_app, MyApp.Repo,
   adapter: Ecto.Adapters.MySQL,
-  username: {:system, "DATABASE_USERNAME", "root"},
-  password: {:system, "DATABASE_PASSWORD", "toor"},
-  database: {:system, "DATABASE_DB", "myapp"},
-  hostname: {:system, "DATABASE_HOST", "localhost"},
-  port: {:integer, {:system, "DATABASE_PORT", "3306"}},
-  pool_size: {:integer, {:system, "DATABASE_POOL_SIZE", "10"}}
+  username: {:system, "DATABASE_USERNAME", default: "root"},
+  password: {:system, "DATABASE_PASSWORD", default: "toor"},
+  database: {:system, "DATABASE_DB", default: "myapp"},
+  hostname: {:system, "DATABASE_HOST", default: "localhost"},
+  port: {:system, "DATABASE_PORT", type: :integer, default: 3306},
+  pool_size: {:system, "DATABASE_POOL_SIZE", type: :integer, default: 10}
 
 config :logger,
-  level: {:atom, {:system, "LOG_LEVEL", "info"}}
+  level: {:system, "LOG_LEVEL", type: :atom, default: :info}
 ```

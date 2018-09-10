@@ -18,15 +18,18 @@ defmodule ConfigTuples.Provider do
 
   ## Config tuples
 
-  The existing config tuples are:
+  The config tuple always start with `:system`, and can have some options as keyword, the syntax are like this:
 
-  - `{:system, env_name}` - Read the env_name from environment variables (Using `System.get_env/1`)
-  - `{:system, env_name, default}` - The same as `{:system, env_name}` but with a default value if no environment variable is set.
-  - `{:integer, value}` - Parse the value as integer. Value can be other config tuple.
-  - `{:atom, value}` - Parse the value as atom. Value can be other config tuple.
-  - `{:boolean, value}` - Parse the value as boolean. Value can be other config tuple.
+  - `{:system, env_name}`
+  - `{:system, env_name, opts}`
 
-  With `:integer`, `:atom` and `:boolean` you can use another config tuples, for example: `{:integer, {:system, "MYSQL_PORT"}}`
+  The available options are:
+  - `type`: Type to cast the value, one of `:string`, `:integer`, `:atom`, `:boolean`. Default to `:string`
+  - `default`: Default value if the environment variable is not setted. Default no `nil`
+
+  For example:
+  - `{:system, "MYSQL_PORT", type: :integer, default: 3306}`
+  - `{:system, "ENABLE_LOG", type: :boolean, default: false}`
   """
 
   use Mix.Releases.Config.Provider
@@ -66,20 +69,25 @@ defmodule ConfigTuples.Provider do
   defp replace(list) when is_list(list), do: Enum.map(list, &replace/1)
   defp replace(other), do: other
 
-  defp replace_value({:atom, bin}) when is_binary(bin), do: String.to_atom(bin)
-  defp replace_value({:atom, value}), do: replace_value({:atom, replace_value(value)})
+  defp replace_value({:system, env}), do: replace_value({:system, env, []})
 
-  defp replace_value({:integer, bin}) when is_binary(bin), do: String.to_integer(bin)
-  defp replace_value({:integer, value}), do: replace_value({:integer, replace_value(value)})
+  defp replace_value({:system, env, opts}) do
+    type = opts[:type] || :string
+    default = opts[:default] || nil
 
-  defp replace_value({:boolean, "true"}), do: true
-  defp replace_value({:boolean, "false"}), do: false
-  defp replace_value({:boolean, value}), do: replace_value({:boolean, replace_value(value)})
+    case System.get_env(env) do
+      nil -> default
+      value -> cast(value, type)
+    end
+  end
 
-  defp replace_value({:system, env}), do: System.get_env(env)
-  defp replace_value({:system, env, default}), do: System.get_env(env) || default
-
-  defp replace_value(value), do: value
+  defp cast(nil, _type), do: nil
+  defp cast(value, :string), do: value
+  defp cast(value, :atom), do: String.to_atom(value)
+  defp cast(value, :integer), do: String.to_integer(value)
+  defp cast("true", :boolean), do: true
+  defp cast("false", :boolean), do: false
+  defp cast(_, :boolean), do: false
 
   defp deep_merge(a, b) when is_list(a) and is_list(b) do
     if Keyword.keyword?(a) and Keyword.keyword?(b) do
