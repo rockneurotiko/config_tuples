@@ -26,10 +26,12 @@ defmodule ConfigTuples.Provider do
   The available options are:
   - `type`: Type to cast the value, one of `:string`, `:integer`, `:atom`, `:boolean`. Default to `:string`
   - `default`: Default value if the environment variable is not setted. Default no `nil`
+  - `transform`: Function to transform the final value, the syntax is {Module, :function}
 
   For example:
   - `{:system, "MYSQL_PORT", type: :integer, default: 3306}`
   - `{:system, "ENABLE_LOG", type: :boolean, default: false}`
+  - `{:system, "HOST", transform: {MyApp.UrlParser, :parse}}`
   """
 
   use Mix.Releases.Config.Provider
@@ -74,11 +76,22 @@ defmodule ConfigTuples.Provider do
   defp replace_value({:system, env, opts}) do
     type = opts[:type] || :string
     default = opts[:default] || nil
+    transformer = opts[:transform] || nil
 
+    env |> get_env_value(type, default) |> transform(transformer)
+  end
+
+  defp get_env_value(env, type, default) do
     case System.get_env(env) do
       nil -> default
       value -> cast(value, type)
     end
+  end
+
+  defp transform(value, nil), do: value
+
+  defp transform(value, {module, function}) do
+    apply(module, function, [value])
   end
 
   defp cast(nil, _type), do: nil

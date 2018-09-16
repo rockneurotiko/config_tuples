@@ -46,12 +46,16 @@ The config tuple always start with `:system`, and can have some options as keywo
 The available options are:
 - `type`: Type to cast the value, one of `:string`, `:integer`, `:atom`, `:boolean`. Default to `:string`
 - `default`: Default value if the environment variable is not setted. Default no `nil`
+- `transform`: Function to transform the final value, the syntax is {Module, :function}
 
 ## Example
 
 This could be an example for Ecto repository and logger:
 
 ``` elixir
+config :my_app,
+    uri: {:system, "HOST", transform: {MyApp.UriParser, :parse}}
+
 config :my_app, MyApp.Repo,
   adapter: Ecto.Adapters.MySQL,
   username: {:system, "DATABASE_USERNAME", default: "root"},
