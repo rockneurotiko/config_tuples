@@ -74,9 +74,9 @@ defmodule ConfigTuples.Provider do
   defp replace_value({:system, env}), do: replace_value({:system, env, []})
 
   defp replace_value({:system, env, opts}) do
-    type = opts[:type] || :string
-    default = opts[:default] || nil
-    transformer = opts[:transform] || nil
+    type = Keyword.get(opts, :type, :string)
+    default = Keyword.get(opts, :default)
+    transformer = Keyword.get(opts, :transform)
 
     env |> get_env_value(type, default) |> transform(transformer)
   end
