@@ -73,12 +73,20 @@ defmodule ConfigTuples.Provider do
 
   defp replace_value({:system, env}), do: replace_value({:system, env, []})
 
+  defp replace_value({:system, :literal, value}) do
+    value
+  end
+
   defp replace_value({:system, env, opts}) do
     type = Keyword.get(opts, :type, :string)
     default = Keyword.get(opts, :default)
     transformer = Keyword.get(opts, :transform)
 
     env |> get_env_value(type, default) |> transform(transformer)
+  end
+
+  defp replace_value(other) do
+    other
   end
 
   defp get_env_value(env, type, default) do
