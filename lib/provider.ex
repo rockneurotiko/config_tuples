@@ -62,31 +62,36 @@ defmodule ConfigTuples.Provider do
     persist(app, rest)
   end
 
-  defp replace({key, {kind, value}}), do: {key, replace_value({kind, value})}
-  defp replace({key, {kind, value, default}}), do: {key, replace_value({kind, value, default})}
-  defp replace({key, list}) when is_list(list), do: {key, replace(list)}
-  defp replace({key, other}), do: {key, other}
+  def replace({:system, :literal, value}), do: value
+  def replace({:system, value}), do: replace_value(value, [])
+  def replace({:system, value, opts}), do: replace_value(value, opts)
 
-  defp replace([]), do: []
-  defp replace(list) when is_list(list), do: Enum.map(list, &replace/1)
-  defp replace(other), do: other
-
-  defp replace_value({:system, env}), do: replace_value({:system, env, []})
-
-  defp replace_value({:system, :literal, value}) do
-    value
+  def replace(list) when is_list(list) do
+    Enum.map(list, fn
+      {key, value} -> {replace(key), replace(value)}
+      other -> replace(other)
+    end)
   end
 
-  defp replace_value({:system, env, opts}) do
+  def replace(map) when is_map(map) do
+    Map.new(map, fn
+      {key, value} -> {replace(key), replace(value)}
+      other -> replace(other)
+    end)
+  end
+
+  def replace(tuple) when is_tuple(tuple) do
+    tuple |> Tuple.to_list() |> Enum.map(&replace/1) |> List.to_tuple()
+  end
+
+  def replace(other), do: other
+
+  defp replace_value(env, opts) do
     type = Keyword.get(opts, :type, :string)
     default = Keyword.get(opts, :default)
     transformer = Keyword.get(opts, :transform)
 
     env |> get_env_value(type, default) |> transform(transformer)
-  end
-
-  defp replace_value(other) do
-    other
   end
 
   defp get_env_value(env, type, default) do
