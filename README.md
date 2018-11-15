@@ -24,7 +24,7 @@ end
 
 Then, add it to the config providers of distillery in `rel/config.exs`
 
-``` elixir
+```elixir
 release :myapp do
   # ...snip...
   set config_providers: [
@@ -48,13 +48,22 @@ The available options are:
 - `default`: Default value if the environment variable is not setted. Default no `nil`
 - `transform`: Function to transform the final value, the syntax is {Module, :function}
 
+If you need to store the literal values `{:system, term()}`, `{:system, term(), Keyword.t()}`,
+you can use `{:system, :literal, term()}` to disable ConfigTuples config interpolation. For example:
+
+```elixir
+# This will store the value {:system, :foo}
+config :my_app,
+  value: {:system, :literal, {:system, :foo}}
+```
+
 ## Example
 
 This could be an example for Ecto repository and logger:
 
 ``` elixir
 config :my_app,
-    uri: {:system, "HOST", transform: {MyApp.UriParser, :parse}}
+  uri: {:system, "HOST", transform: {MyApp.UriParser, :parse}}
 
 config :my_app, MyApp.Repo,
   adapter: Ecto.Adapters.MySQL,
