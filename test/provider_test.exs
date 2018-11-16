@@ -1,0 +1,213 @@
+defmodule ConfigTuples.ProviderTest do
+  use ExUnit.Case, async: false
+  doctest ConfigTuples.Provider
+
+  alias ConfigTuples.Provider
+
+  @app :config_tuples
+
+  test "do not replace data without system tuple" do
+    envs = %{}
+    config = [host: "localhost", environment: :system, system: :production, port: 8080, ssl: true]
+
+    env_scope(envs, config, fn ->
+      Provider.init([])
+      assert_config(config)
+    end)
+  end
+
+  test "replace basic tuple" do
+    envs = %{"HOST" => "localhost"}
+    config = [host: {:system, "HOST"}]
+    expected_config = [host: "localhost"]
+
+    env_scope(envs, config, fn ->
+      Provider.init([])
+      assert_config(expected_config)
+    end)
+  end
+
+  test "default value is nil" do
+    envs = %{}
+    config = [host: {:system, "HOST"}]
+    expected_config = [host: nil]
+
+    env_scope(envs, config, fn ->
+      Provider.init([])
+      assert_config(expected_config)
+    end)
+  end
+
+  test "cast to integer" do
+    envs = %{"PORT" => "8080"}
+    config = [host: {:system, "PORT", type: :integer}]
+    expected_config = [host: 8080]
+
+    env_scope(envs, config, fn ->
+      Provider.init([])
+      assert_config(expected_config)
+    end)
+  end
+
+  test "cast to atom" do
+    envs = %{"LOG_LEVEL" => "info", "ADAPTER" => "Elixir.Some.Atom"}
+
+    config = [
+      log_level: {:system, "LOG_LEVEL", type: :atom},
+      adapter: {:system, "ADAPTER", type: :atom}
+    ]
+
+    expected_config = [log_level: :info, adapter: Some.Atom]
+
+    env_scope(envs, config, fn ->
+      Provider.init([])
+      assert_config(expected_config)
+    end)
+  end
+
+  test "cast to boolean" do
+    envs = %{"TRUTHY" => "true", "FALSEY" => "false", "OTHER" => "wat"}
+
+    config = [
+      truthy: {:system, "TRUTHY", type: :boolean},
+      falsey: {:system, "FALSEY", type: :boolean},
+      other: {:system, "OTHER", type: :boolean}
+    ]
+
+    expected_config = [truthy: true, falsey: false, other: false]
+
+    env_scope(envs, config, fn ->
+      Provider.init([])
+      assert_config(expected_config)
+    end)
+  end
+
+  test "set default value when no env" do
+    envs = %{}
+
+    config = [
+      string: {:system, "STRING", default: "cool value"},
+      integer: {:system, "INTEGER", type: :integer, default: 80},
+      atom: {:system, "ATOM", type: :atom, default: :info},
+      boolean: {:system, "BOOL", type: :boolean, default: false}
+    ]
+
+    expected_config = [string: "cool value", integer: 80, atom: :info, boolean: false]
+
+    env_scope(envs, config, fn ->
+      Provider.init([])
+      assert_config(expected_config)
+    end)
+  end
+
+  test "when tuple contains literal use the value passed" do
+    envs = %{"HOST" => "localhost"}
+
+    config = [
+      host: {:system, :literal, {:system, "HOST"}}
+    ]
+
+    expected_config = [host: {:system, "HOST"}]
+
+    env_scope(envs, config, fn ->
+      Provider.init([])
+      assert_config(expected_config)
+    end)
+  end
+
+  test "replace values inside a map" do
+    envs = %{"HOST" => "localhost"}
+
+    config = [
+      config: %{app: %{"host" => {:system, "HOST"}, "other" => "foo"}, other: "bar"}
+    ]
+
+    expected_config = [config: %{app: %{"host" => "localhost", "other" => "foo"}, other: "bar"}]
+
+    env_scope(envs, config, fn ->
+      Provider.init([])
+      assert_config(expected_config)
+    end)
+  end
+
+  test "do not replace 2-tuple inside a list" do
+    envs = %{"HOST" => "localhost"}
+
+    config = [
+      system: "HOST",
+      list: ["foo", 123, {:system, "HOST"}]
+    ]
+
+    expected_config = [system: "HOST", list: ["foo", 123, {:system, "HOST"}]]
+
+    env_scope(envs, config, fn ->
+      Provider.init([])
+      assert_config(expected_config)
+    end)
+  end
+
+  test "replace value inside a list if it's not a 2-tuple" do
+    envs = %{"HOST" => "localhost"}
+
+    config = [
+      system: "HOST",
+      list: ["foo", 123, {:system, "HOST", type: :string}]
+    ]
+
+    expected_config = [system: "HOST", list: ["foo", 123, "localhost"]]
+
+    env_scope(envs, config, fn ->
+      Provider.init([])
+      assert_config(expected_config)
+    end)
+  end
+
+  def transform(x) do
+    {x, "transformed"}
+  end
+
+  test "call the transform method with the correct value" do
+    envs = %{"HOST" => "localhost", "PORT" => "8080"}
+
+    config = [
+      host: {:system, "HOST", transform: {__MODULE__, :transform}},
+      port: {:system, "PORT", type: :integer, transform: {__MODULE__, :transform}}
+    ]
+
+    expected_config = [host: {"localhost", "transformed"}, port: {8080, "transformed"}]
+
+    env_scope(envs, config, fn ->
+      Provider.init([])
+      assert_config(expected_config)
+    end)
+  end
+
+  defp assert_config(config, app \\ @app) do
+    config = config |> Keyword.to_list() |> Enum.sort()
+
+    saved_config =
+      app
+      |> Application.get_all_env()
+      |> Keyword.delete(:included_applications)
+      |> Keyword.to_list()
+      |> Enum.sort()
+
+    assert config == saved_config
+  end
+
+  defp env_scope(envs, config, callback, app \\ @app) do
+    Enum.each(envs, fn {k, v} -> System.put_env(k, v) end)
+    Enum.each(config, fn {k, v} -> Application.put_env(app, k, v) end)
+
+    try do
+      callback.()
+    after
+      clean_env(envs, config, app)
+    end
+  end
+
+  defp clean_env(envs, config, app) do
+    Enum.each(config, fn {k, _v} -> Application.delete_env(app, k) end)
+    Enum.each(envs, fn {k, _v} -> System.delete_env(k) end)
+  end
+end
