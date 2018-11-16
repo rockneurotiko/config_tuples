@@ -32,6 +32,11 @@ defmodule ConfigTuples.Provider do
   - `{:system, "MYSQL_PORT", type: :integer, default: 3306}`
   - `{:system, "ENABLE_LOG", type: :boolean, default: false}`
   - `{:system, "HOST", transform: {MyApp.UrlParser, :parse}}`
+
+  If you need to store the literal values `{:system, term()}`, `{:system, term(), Keyword.t()}`,
+  you can use `{:system, :literal, term()}` to disable ConfigTuples config interpolation. For example:
+
+  - `{:system, :literal, {:system, "HOST}}`
   """
 
   use Mix.Releases.Config.Provider

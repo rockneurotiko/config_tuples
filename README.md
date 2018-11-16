@@ -51,10 +51,19 @@ The available options are:
 If you need to store the literal values `{:system, term()}`, `{:system, term(), Keyword.t()}`,
 you can use `{:system, :literal, term()}` to disable ConfigTuples config interpolation. For example:
 
-```elixir
+``` elixir
 # This will store the value {:system, :foo}
 config :my_app,
   value: {:system, :literal, {:system, :foo}}
+```
+
+ConfigTuples works recursively in maps and lists, which makes it unable to differenciate a keyword list (like the app config) with an element of the list with a 2-tuple, if you need to trigger ConfigTuples inside a list you need to pass some option as third parameter:
+
+``` elixir
+# Assuming that HOST=localhost
+# This will store [{:system, "HOST"}, "localhost"]
+config :my_app,
+  value: [{:system, "HOST"}, {:system, "HOST", type: :string}]
 ```
 
 ## Example
