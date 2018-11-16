@@ -3,6 +3,7 @@
 [![Hex.pm](https://img.shields.io/hexpm/v/config_tuples.svg)](http://hex.pm/packages/config_tuples)
 [![Hex.pm](https://img.shields.io/hexpm/dt/config_tuples.svg)](https://hex.pm/packages/config_tuples)
 [![Hex.pm](https://img.shields.io/hexpm/dw/config_tuples.svg)](https://hex.pm/packages/config_tuples)
+[![Build Status](https://travis-ci.org/rockneurotiko/config_tuples.svg?branch=master)](https://travis-ci.org/rockneurotiko/config_tuples)
 [![Inline docs](http://inch-ci.org/github/rockneurotiko/config_tuples.svg)](http://inch-ci.org/github/rockneurotiko/config_tuples)
 
 
