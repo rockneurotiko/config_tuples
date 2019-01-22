@@ -27,6 +27,7 @@ defmodule ConfigTuples.Provider do
   - `type`: Type to cast the value, one of `:string`, `:integer`, `:atom`, `:boolean`. Default to `:string`
   - `default`: Default value if the environment variable is not setted. Default no `nil`
   - `transform`: Function to transform the final value, the syntax is {Module, :function}
+  - `required`: Set to true if this environment variable needs to be setted, if not setted it will raise an error. Default no `false`
 
   For example:
   - `{:system, "MYSQL_PORT", type: :integer, default: 3306}`
@@ -94,17 +95,31 @@ defmodule ConfigTuples.Provider do
   defp replace_value(env, opts) do
     type = Keyword.get(opts, :type, :string)
     default = Keyword.get(opts, :default)
+    required = Keyword.get(opts, :required, false)
     transformer = Keyword.get(opts, :transform)
 
-    env |> get_env_value(type, default) |> transform(transformer)
+    env
+    |> get_env_value(type)
+    |> env_required(required)
+    |> env_unwrap_default(default)
+    |> transform(transformer)
   end
 
-  defp get_env_value(env, type, default) do
+  defp get_env_value(env, type) do
     case System.get_env(env) do
-      nil -> default
-      value -> cast(value, type)
+      nil -> {:error, {:required, env}}
+      value -> {:ok, cast(value, type)}
     end
   end
+
+  defp env_required({:error, _} = error, true) do
+    raise ConfigTuples.Error, error
+  end
+
+  defp env_required(env, _other), do: env
+
+  defp env_unwrap_default({:ok, value}, _default), do: value
+  defp env_unwrap_default({:error, _}, default), do: default
 
   defp transform(value, nil), do: value
 

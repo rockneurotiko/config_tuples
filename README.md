@@ -48,6 +48,7 @@ The available options are:
 - `type`: Type to cast the value, one of `:string`, `:integer`, `:atom`, `:boolean`. Default to `:string`
 - `default`: Default value if the environment variable is not setted. Default no `nil`
 - `transform`: Function to transform the final value, the syntax is {Module, :function}
+- `required`: Set to true if this environment variable needs to be setted, if not setted it will raise an error. Default no `false`
 
 If you need to store the literal values `{:system, term()}`, `{:system, term(), Keyword.t()}`,
 you can use `{:system, :literal, term()}` to disable ConfigTuples config interpolation. For example:
@@ -69,11 +70,11 @@ config :my_app,
 
 ## Example
 
-This could be an example for Ecto repository and logger:
+This could be an example for the main app, Ecto repository and logger:
 
 ``` elixir
 config :my_app,
-  uri: {:system, "HOST", transform: {MyApp.UriParser, :parse}}
+  uri: {:system, "HOST", transform: {MyApp.UriParser, :parse}, required: true}
 
 config :my_app, MyApp.Repo,
   adapter: Ecto.Adapters.MySQL,
