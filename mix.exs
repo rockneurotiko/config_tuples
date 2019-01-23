@@ -4,7 +4,7 @@ defmodule ConfigTuples.MixProject do
   def project do
     [
       app: :config_tuples,
-      version: "0.2.4",
+      version: "0.2.5",
       elixir: "~> 1.6",
       package: package(),
       description: description(),
