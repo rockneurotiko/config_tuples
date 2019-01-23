@@ -1,5 +1,12 @@
 language: elixir
+env:
+  - MIX_ENV=test
 elixir:
   - 1.6.4
 otp_release:
   - 20.2
+script: mix coveralls.json
+after_script:
+  - bash <(curl -s https://codecov.io/bash)
+  - MIX_ENV=docs mix deps.get
+  - MIX_ENV=docs mix inch.report
