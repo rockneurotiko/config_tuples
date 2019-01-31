@@ -8,7 +8,7 @@
 [![Inline docs](http://inch-ci.org/github/rockneurotiko/config_tuples.svg)](http://inch-ci.org/github/rockneurotiko/config_tuples)
 
 
-ConfigTuples provides a distillery's config provider that replace config tuples (e.g `{:system, value}`) to their expected runtime value.
+ConfigTuples provides a Distillery config provider that replaces config tuples (e.g `{:system, value}`) with their expected runtime value.
 
 ## Usage
 
@@ -40,16 +40,16 @@ will evaluate the current configuration for all the apps and replace the config 
 
 ## Config tuples
 
-The config tuple always start with `:system`, and can have some options as keyword, the syntax are like this:
+The config tuple always start with `:system`, and can have some options as keyword, the syntax looks like this:
 
 - `{:system, env_name}`
 - `{:system, env_name, opts}`
 
 The available options are:
 - `type`: Type to cast the value, one of `:string`, `:integer`, `:atom`, `:boolean`. Default to `:string`
-- `default`: Default value if the environment variable is not setted. Default no `nil`
+- `default`: Default value if the environment variable is not set. Defaults no `nil`
 - `transform`: Function to transform the final value, the syntax is {Module, :function}
-- `required`: Set to true if this environment variable needs to be setted, if not setted it will raise an error. Default no `false`
+- `required`: Set to true if this environment variable needs to be set, if not set it will raise an error. Defaults to `false`
 
 If you need to store the literal values `{:system, term()}`, `{:system, term(), Keyword.t()}`,
 you can use `{:system, :literal, term()}` to disable ConfigTuples config interpolation. For example:
@@ -97,7 +97,7 @@ defmodule MyApp do
 end
 ```
 
-When releasing your app with distillery, your code is compiled when you execute `mix release`, and the config providers are executed just before booting your code.
+When releasing your app with Distillery, your code is compiled when you execute `mix release`, and the config providers are executed just before booting your code.
 
 This means that if you use module attributes for loading values expected to be replaced by any config provider, it won't be replaced, because that value will be setted on compile time, when doing the release (You can read more about module attributes [here](https://elixir-lang.org/getting-started/module-attributes.html))
 
