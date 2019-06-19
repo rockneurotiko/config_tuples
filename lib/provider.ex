@@ -72,6 +72,10 @@ defmodule ConfigTuples.Provider do
   def replace({:system, value}), do: replace_value(value, [])
   def replace({:system, value, opts}), do: replace_value(value, opts)
 
+  def replace(from..to) do
+    from..to
+  end
+
   def replace(list) when is_list(list) do
     Enum.map(list, fn
       {key, value} -> {replace(key), replace(value)}

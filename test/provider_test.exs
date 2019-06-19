@@ -15,7 +15,8 @@ defmodule ConfigTuples.ProviderTest do
         environment: :system,
         system: :production,
         port: 8080,
-        ssl: true
+        ssl: true,
+        some_range: 1..2
       ]
 
       env_scope(envs, config, fn ->
