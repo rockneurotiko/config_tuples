@@ -19,10 +19,13 @@ Add the package by adding `config_tuples` to your list of dependencies in `mix.e
 ```elixir
 def deps do
   [
-    {:config_tuples, "~> 0.2"}
+    {:distillery, "~> 2.1"},
+    {:config_tuples, "~> 0.3"}
   ]
 end
 ```
+
+Note: For Distillery 2.0 use the config_tuples version `~> 0.2`
 
 Then, add it to the config providers of distillery in `rel/config.exs`
 

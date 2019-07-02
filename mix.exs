@@ -1,7 +1,7 @@
 defmodule ConfigTuples.MixProject do
   use Mix.Project
 
-  @version "0.2.6"
+  @version "0.3.0"
 
   def project do
     [
