@@ -40,7 +40,7 @@ defmodule ConfigTuples.Provider do
   - `{:system, :literal, {:system, "HOST}}`
   """
 
-  use Mix.Releases.Config.Provider
+  use Distillery.Releases.Config.Provider
 
   @impl Provider
   def init(_cfg) do
