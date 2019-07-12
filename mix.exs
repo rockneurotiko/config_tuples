@@ -1,13 +1,13 @@
 defmodule ConfigTuples.MixProject do
   use Mix.Project
 
-  @version "0.3.0"
+  @version "0.4.0"
 
   def project do
     [
       app: :config_tuples,
       version: @version,
-      elixir: "~> 1.6",
+      elixir: "~> 1.6 or ~> 1.9",
       package: package(),
       description: description(),
       source_url: "https://github.com/rockneurotiko/config_tuples",
@@ -34,12 +34,12 @@ defmodule ConfigTuples.MixProject do
   end
 
   defp description do
-    "ConfigTuples provides a distillery's config provider that replace config tuples (e.g `{:system, value}`) to their expected runtime value."
+    "ConfigTuples provides a elixir config provider (for Distillery and Elixir) that replace config tuples (e.g `{:system, value}`) to their expected runtime value."
   end
 
   defp deps do
     [
-      {:distillery, "~> 2.1", runtime: false},
+      {:distillery, "~> 2.1", optional: true, runtime: false},
       # Testing & docs:
       {:excoveralls, "~> 0.8", only: :test},
       {:ex_doc, "~> 0.19.0", only: :dev},

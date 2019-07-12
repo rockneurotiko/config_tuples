@@ -1,4 +1,4 @@
-# ConfigTuples for Distillery releases
+# ConfigTuples for releases
 
 [![Build Status](https://travis-ci.org/rockneurotiko/config_tuples.svg?branch=master)](https://travis-ci.org/rockneurotiko/config_tuples)
 [![Hex.pm](https://img.shields.io/hexpm/v/config_tuples.svg)](http://hex.pm/packages/config_tuples)
@@ -8,7 +8,7 @@
 [![Inline docs](http://inch-ci.org/github/rockneurotiko/config_tuples.svg)](http://inch-ci.org/github/rockneurotiko/config_tuples)
 
 
-ConfigTuples provides a Distillery config provider that replaces config tuples (e.g `{:system, value}`) with their expected runtime value.
+ConfigTuples provides a release config provider that replaces config tuples (e.g `{:system, value}`) with their expected runtime value. It can be used on Distillery or Elixir releases!
 
 ## Usage
 
@@ -19,15 +19,33 @@ Add the package by adding `config_tuples` to your list of dependencies in `mix.e
 ```elixir
 def deps do
   [
-    {:distillery, "~> 2.1"},
-    {:config_tuples, "~> 0.3"}
+    {:config_tuples, "~> 0.4"}
   ]
 end
 ```
 
-Note: For Distillery 2.0 use the config_tuples version `~> 0.2`
+Depending if you use Distillery or Elixir releases, you will need different configurations, check the corresponding section:
 
-Then, add it to the config providers of distillery in `rel/config.exs`
+- [Distillery](#with-distillery)
+- [Elixir Releases](#with-elixir-releases)
+
+The documentation about the configuration semantics are at the bottom of the README, in the [Config Tuples section](#config-tuples).
+
+### With Distillery
+
+Add distillery to your list of dependencies in `mix.exs`:
+
+```elixir
+def deps do
+  [
+    {:distillery, "~> 2.1"}
+  ]
+end
+```
+
+**Note: For Distillery 2.0 use the config_tuples version `~> 0.2` [You can see the documentation here](https://github.com/rockneurotiko/config_tuples/tree/v0.2.6)**
+
+Add the provider distillery release in `rel/config.exs`
 
 ```elixir
 release :myapp do
@@ -40,6 +58,36 @@ end
 
 This will result in `ConfigTuples.Provider` being invoked during boot, at which point it
 will evaluate the current configuration for all the apps and replace the config tuples when needed, persisting it in the configuration.
+
+Use `mix distillery.release` to create your release!
+
+### With Elixir Releases
+
+On Elixir 1.9 native Releases has been added, and starting in version `0.4` you can have the awesome tuples semantic with them!
+
+Add the provider to the elixir release in `mix.exs`:
+
+``` elixir
+def project do
+  [
+    app: :myapp,
+    # ...
+    releases: [
+      myapp: [
+        config_providers: [{ConfigTuples.Provider, ""}]
+      ]
+    ]
+  ]
+end
+```
+
+Use `mix release` to create your release!
+
+If you are going to have `distillery` in your application dependencies, you will need to add this configuration to your `config.exs` in order to use the elixir release instead.
+
+``` elixir
+config :config_tuples, distillery: false
+```
 
 ## Config tuples
 
