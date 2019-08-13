@@ -40,15 +40,39 @@ defmodule ConfigTuples.Provider do
   - `{:system, :literal, {:system, "HOST}}`
   """
 
-  use Distillery.Releases.Config.Provider
+  @distillery_loaded Code.ensure_loaded?(Distillery.Releases.Config.Provider)
 
-  @impl Provider
+  if @distillery_loaded do
+    @behaviour Distillery.Releases.Config.Provider
+  else
+    @behaviour Config.Provider
+  end
+
   def init(_cfg) do
-    # Build up configuration and persist
+    if use_distillery() do
+      distillery_provider()
+    end
+  end
 
+  def load(config, _) do
+    elixir_provider(config)
+  end
+
+  defp use_distillery() do
+    @distillery_loaded and Application.get_env(:config_tuples, :distillery, true)
+  end
+
+  defp distillery_provider() do
+    # Build up configuration and persist
     for {app, _, _} <- Application.loaded_applications() do
       fix_app_env(app)
     end
+  end
+
+  defp elixir_provider(config) do
+    new_config = replace(config)
+
+    deep_merge(config, new_config)
   end
 
   defp fix_app_env(app) do
@@ -56,7 +80,8 @@ defmodule ConfigTuples.Provider do
 
     new_config = replace(base)
 
-    merged = deep_merge(base, new_config)
+    # We have to wrap with the app name, just in case we use Config.Reader
+    [{_app, merged}] = deep_merge([{app, base}], [{app, new_config}])
 
     persist(app, merged)
   end
@@ -139,25 +164,31 @@ defmodule ConfigTuples.Provider do
   defp cast("false", :boolean), do: false
   defp cast(_, :boolean), do: false
 
-  defp deep_merge(a, b) when is_list(a) and is_list(b) do
-    if Keyword.keyword?(a) and Keyword.keyword?(b) do
-      Keyword.merge(a, b, &deep_merge/3)
-    else
-      b
+  if Code.ensure_loaded?(Config.Reader) do
+    defp deep_merge(base, extra) do
+      Config.Reader.merge(base, extra)
     end
-  end
-
-  defp deep_merge(_k, a, b) when is_list(a) and is_list(b) do
-    if Keyword.keyword?(a) and Keyword.keyword?(b) do
-      Keyword.merge(a, b, &deep_merge/3)
-    else
-      b
+  else
+    defp deep_merge(a, b) when is_list(a) and is_list(b) do
+      if Keyword.keyword?(a) and Keyword.keyword?(b) do
+        Keyword.merge(a, b, &deep_merge/3)
+      else
+        b
+      end
     end
-  end
 
-  defp deep_merge(_k, a, b) when is_map(a) and is_map(b) do
-    Map.merge(a, b, &deep_merge/3)
-  end
+    defp deep_merge(_k, a, b) when is_list(a) and is_list(b) do
+      if Keyword.keyword?(a) and Keyword.keyword?(b) do
+        Keyword.merge(a, b, &deep_merge/3)
+      else
+        b
+      end
+    end
 
-  defp deep_merge(_k, _a, b), do: b
+    defp deep_merge(_k, a, b) when is_map(a) and is_map(b) do
+      Map.merge(a, b, &deep_merge/3)
+    end
+
+    defp deep_merge(_k, _a, b), do: b
+  end
 end

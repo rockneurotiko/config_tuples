@@ -1,13 +1,10 @@
-defmodule ConfigTuples.ProviderTest do
+defmodule ConfigTuples.ProviderElixirTest do
   use ExUnit.Case, async: false
-  doctest ConfigTuples.Provider
 
   alias ConfigTuples.Provider
 
-  @app :config_tuples
-
   setup do
-    Application.delete_env(:config_tuples, :distillery)
+    Application.put_env(:config_tuples, :distillery, false)
     :ok
   end
 
@@ -24,9 +21,8 @@ defmodule ConfigTuples.ProviderTest do
         some_range: 1..2
       ]
 
-      env_scope(envs, config, fn ->
-        Provider.init([])
-        assert_config(config)
+      env_scope(envs, fn ->
+        assert_config(config, Provider.load(config, :ok))
       end)
     end
 
@@ -35,9 +31,8 @@ defmodule ConfigTuples.ProviderTest do
       config = [host: {:system, "HOST"}]
       expected_config = [host: "localhost"]
 
-      env_scope(envs, config, fn ->
-        Provider.init([])
-        assert_config(expected_config)
+      env_scope(envs, fn ->
+        assert_config(expected_config, Provider.load(config, :ok))
       end)
     end
   end
@@ -48,9 +43,8 @@ defmodule ConfigTuples.ProviderTest do
       config = [host: {:system, "PORT", type: :integer}]
       expected_config = [host: 8080]
 
-      env_scope(envs, config, fn ->
-        Provider.init([])
-        assert_config(expected_config)
+      env_scope(envs, fn ->
+        assert_config(expected_config, Provider.load(config, :ok))
       end)
     end
 
@@ -64,9 +58,8 @@ defmodule ConfigTuples.ProviderTest do
 
       expected_config = [log_level: :info, adapter: Some.Atom]
 
-      env_scope(envs, config, fn ->
-        Provider.init([])
-        assert_config(expected_config)
+      env_scope(envs, fn ->
+        assert_config(expected_config, Provider.load(config, :ok))
       end)
     end
 
@@ -81,9 +74,8 @@ defmodule ConfigTuples.ProviderTest do
 
       expected_config = [truthy: true, falsey: false, other: false]
 
-      env_scope(envs, config, fn ->
-        Provider.init([])
-        assert_config(expected_config)
+      env_scope(envs, fn ->
+        assert_config(expected_config, Provider.load(config, :ok))
       end)
     end
   end
@@ -94,9 +86,8 @@ defmodule ConfigTuples.ProviderTest do
       config = [host: {:system, "HOST"}]
       expected_config = [host: nil]
 
-      env_scope(envs, config, fn ->
-        Provider.init([])
-        assert_config(expected_config)
+      env_scope(envs, fn ->
+        assert_config(expected_config, Provider.load(config, :ok))
       end)
     end
 
@@ -112,9 +103,8 @@ defmodule ConfigTuples.ProviderTest do
 
       expected_config = [string: "cool value", integer: 80, atom: :info, boolean: false]
 
-      env_scope(envs, config, fn ->
-        Provider.init([])
-        assert_config(expected_config)
+      env_scope(envs, fn ->
+        assert_config(expected_config, Provider.load(config, :ok))
       end)
     end
   end
@@ -129,9 +119,8 @@ defmodule ConfigTuples.ProviderTest do
 
       expected_config = [host: {:system, "HOST"}]
 
-      env_scope(envs, config, fn ->
-        Provider.init([])
-        assert_config(expected_config)
+      env_scope(envs, fn ->
+        assert_config(expected_config, Provider.load(config, :ok))
       end)
     end
   end
@@ -146,9 +135,8 @@ defmodule ConfigTuples.ProviderTest do
 
       expected_config = [config: %{app: %{"host" => "localhost", "other" => "foo"}, other: "bar"}]
 
-      env_scope(envs, config, fn ->
-        Provider.init([])
-        assert_config(expected_config)
+      env_scope(envs, fn ->
+        assert_config(expected_config, Provider.load(config, :ok))
       end)
     end
 
@@ -162,9 +150,8 @@ defmodule ConfigTuples.ProviderTest do
 
       expected_config = [system: "HOST", list: ["foo", 123, {:system, "HOST"}]]
 
-      env_scope(envs, config, fn ->
-        Provider.init([])
-        assert_config(expected_config)
+      env_scope(envs, fn ->
+        assert_config(expected_config, Provider.load(config, :ok))
       end)
     end
 
@@ -178,9 +165,8 @@ defmodule ConfigTuples.ProviderTest do
 
       expected_config = [system: "HOST", list: ["foo", 123, "localhost"]]
 
-      env_scope(envs, config, fn ->
-        Provider.init([])
-        assert_config(expected_config)
+      env_scope(envs, fn ->
+        assert_config(expected_config, Provider.load(config, :ok))
       end)
     end
   end
@@ -195,9 +181,9 @@ defmodule ConfigTuples.ProviderTest do
 
       message = "environment variable 'PORT' required but is not setted"
 
-      env_scope(envs, config, fn ->
+      env_scope(envs, fn ->
         assert_raise(ConfigTuples.Error, message, fn ->
-          Provider.init([])
+          Provider.load(config, :ok)
         end)
       end)
     end
@@ -211,9 +197,8 @@ defmodule ConfigTuples.ProviderTest do
 
       expected_config = [var: 4321]
 
-      env_scope(envs, config, fn ->
-        Provider.init([])
-        assert_config(expected_config)
+      env_scope(envs, fn ->
+        assert_config(expected_config, Provider.load(config, :ok))
       end)
     end
   end
@@ -233,39 +218,30 @@ defmodule ConfigTuples.ProviderTest do
 
       expected_config = [host: {"localhost", "transformed"}, port: {8080, "transformed"}]
 
-      env_scope(envs, config, fn ->
-        Provider.init([])
-        assert_config(expected_config)
+      env_scope(envs, fn ->
+        assert_config(expected_config, Provider.load(config, :ok))
       end)
     end
   end
 
-  defp assert_config(config, app \\ @app) do
+  defp assert_config(config, other_config) do
     config = config |> Keyword.to_list() |> Enum.sort()
+    other_config = other_config |> Keyword.to_list() |> Enum.sort()
 
-    saved_config =
-      app
-      |> Application.get_all_env()
-      |> Keyword.delete(:included_applications)
-      |> Keyword.to_list()
-      |> Enum.sort()
-
-    assert config == saved_config
+    assert config == other_config
   end
 
-  defp env_scope(envs, config, callback, app \\ @app) do
+  defp env_scope(envs, callback) do
     Enum.each(envs, fn {k, v} -> System.put_env(k, v) end)
-    Enum.each(config, fn {k, v} -> Application.put_env(app, k, v) end)
 
     try do
       callback.()
     after
-      clean_env(envs, config, app)
+      clean_env(envs)
     end
   end
 
-  defp clean_env(envs, config, app) do
-    Enum.each(config, fn {k, _v} -> Application.delete_env(app, k) end)
+  defp clean_env(envs) do
     Enum.each(envs, fn {k, _v} -> System.delete_env(k) end)
   end
 end
