@@ -22,7 +22,7 @@ defmodule ConfigTuples.ProviderElixirTest do
       ]
 
       env_scope(envs, fn ->
-        assert_config(config, Provider.load(config, :ok))
+        assert_config(config, config)
       end)
     end
 
@@ -32,7 +32,7 @@ defmodule ConfigTuples.ProviderElixirTest do
       expected_config = [host: "localhost"]
 
       env_scope(envs, fn ->
-        assert_config(expected_config, Provider.load(config, :ok))
+        assert_config(config, expected_config)
       end)
     end
   end
@@ -44,7 +44,7 @@ defmodule ConfigTuples.ProviderElixirTest do
       expected_config = [host: 8080]
 
       env_scope(envs, fn ->
-        assert_config(expected_config, Provider.load(config, :ok))
+        assert_config(config, expected_config)
       end)
     end
 
@@ -59,7 +59,7 @@ defmodule ConfigTuples.ProviderElixirTest do
       expected_config = [log_level: :info, adapter: Some.Atom]
 
       env_scope(envs, fn ->
-        assert_config(expected_config, Provider.load(config, :ok))
+        assert_config(config, expected_config)
       end)
     end
 
@@ -75,7 +75,7 @@ defmodule ConfigTuples.ProviderElixirTest do
       expected_config = [truthy: true, falsey: false, other: false]
 
       env_scope(envs, fn ->
-        assert_config(expected_config, Provider.load(config, :ok))
+        assert_config(config, expected_config)
       end)
     end
   end
@@ -87,7 +87,7 @@ defmodule ConfigTuples.ProviderElixirTest do
       expected_config = [host: nil]
 
       env_scope(envs, fn ->
-        assert_config(expected_config, Provider.load(config, :ok))
+        assert_config(config, expected_config)
       end)
     end
 
@@ -104,7 +104,7 @@ defmodule ConfigTuples.ProviderElixirTest do
       expected_config = [string: "cool value", integer: 80, atom: :info, boolean: false]
 
       env_scope(envs, fn ->
-        assert_config(expected_config, Provider.load(config, :ok))
+        assert_config(config, expected_config)
       end)
     end
   end
@@ -120,7 +120,7 @@ defmodule ConfigTuples.ProviderElixirTest do
       expected_config = [host: {:system, "HOST"}]
 
       env_scope(envs, fn ->
-        assert_config(expected_config, Provider.load(config, :ok))
+        assert_config(config, expected_config)
       end)
     end
   end
@@ -136,7 +136,7 @@ defmodule ConfigTuples.ProviderElixirTest do
       expected_config = [config: %{app: %{"host" => "localhost", "other" => "foo"}, other: "bar"}]
 
       env_scope(envs, fn ->
-        assert_config(expected_config, Provider.load(config, :ok))
+        assert_config(config, expected_config)
       end)
     end
 
@@ -151,7 +151,7 @@ defmodule ConfigTuples.ProviderElixirTest do
       expected_config = [system: "HOST", list: ["foo", 123, {:system, "HOST"}]]
 
       env_scope(envs, fn ->
-        assert_config(expected_config, Provider.load(config, :ok))
+        assert_config(config, expected_config)
       end)
     end
 
@@ -166,7 +166,7 @@ defmodule ConfigTuples.ProviderElixirTest do
       expected_config = [system: "HOST", list: ["foo", 123, "localhost"]]
 
       env_scope(envs, fn ->
-        assert_config(expected_config, Provider.load(config, :ok))
+        assert_config(config, expected_config)
       end)
     end
   end
@@ -176,7 +176,9 @@ defmodule ConfigTuples.ProviderElixirTest do
       envs = %{}
 
       config = [
-        var: {:system, "PORT", type: :integer, required: true}
+        my_app: [
+          var: {:system, "PORT", type: :integer, required: true}
+        ]
       ]
 
       message = "environment variable 'PORT' required but is not setted"
@@ -198,7 +200,7 @@ defmodule ConfigTuples.ProviderElixirTest do
       expected_config = [var: 4321]
 
       env_scope(envs, fn ->
-        assert_config(expected_config, Provider.load(config, :ok))
+        assert_config(config, expected_config)
       end)
     end
   end
@@ -219,12 +221,19 @@ defmodule ConfigTuples.ProviderElixirTest do
       expected_config = [host: {"localhost", "transformed"}, port: {8080, "transformed"}]
 
       env_scope(envs, fn ->
-        assert_config(expected_config, Provider.load(config, :ok))
+        assert_config(config, expected_config)
       end)
     end
   end
 
-  defp assert_config(config, other_config) do
+  defp assert_config(config, expected) do
+    config = [my_app: config]
+    expected = [my_app: expected]
+
+    compare_config(expected, Provider.load(config, :ok))
+  end
+
+  defp compare_config(config, other_config) do
     config = config |> Keyword.to_list() |> Enum.sort()
     other_config = other_config |> Keyword.to_list() |> Enum.sort()
 
