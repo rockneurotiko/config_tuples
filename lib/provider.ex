@@ -48,6 +48,8 @@ defmodule ConfigTuples.Provider do
     @behaviour Config.Provider
   end
 
+  @ignore_structs [Regex]
+
   def init(_cfg) do
     if use_distillery() do
       distillery_provider()
@@ -107,6 +109,8 @@ defmodule ConfigTuples.Provider do
       other -> replace(other)
     end)
   end
+
+  def replace(%{__struct__: struct} = value) when struct in @ignore_structs, do: value
 
   def replace(map) when is_map(map) do
     Map.new(map, fn
