@@ -240,6 +240,27 @@ defmodule ConfigTuples.ProviderTest do
     end
   end
 
+  describe "ignore structs" do
+    test "ignore regex structs" do
+      envs = %{"HOST" => "localhost"}
+
+      config = [
+        host: {:system, "HOST"},
+        regex: ~r/.+/
+      ]
+
+      expected_config = [
+        host: "localhost",
+        regex: ~r/.+/
+      ]
+
+      env_scope(envs, config, fn ->
+        Provider.init([])
+        assert_config(expected_config)
+      end)
+    end
+  end
+
   defp assert_config(config, app \\ @app) do
     config = config |> Keyword.to_list() |> Enum.sort()
 

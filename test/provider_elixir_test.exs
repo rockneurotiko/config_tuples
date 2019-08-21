@@ -226,6 +226,26 @@ defmodule ConfigTuples.ProviderElixirTest do
     end
   end
 
+  describe "ignore structs" do
+    test "ignore regex structs" do
+      envs = %{"HOST" => "localhost"}
+
+      config = [
+        host: {:system, "HOST"},
+        regex: ~r/.+/
+      ]
+
+      expected_config = [
+        host: "localhost",
+        regex: ~r/.+/
+      ]
+
+      env_scope(envs, fn ->
+        assert_config(config, expected_config)
+      end)
+    end
+  end
+
   defp assert_config(config, expected) do
     config = [my_app: config]
     expected = [my_app: expected]
