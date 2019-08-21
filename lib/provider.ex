@@ -112,6 +112,11 @@ defmodule ConfigTuples.Provider do
 
   def replace(%{__struct__: struct} = value) when struct in @ignore_structs, do: value
 
+  def replace(%{__struct__: struct} = value) do
+    values = value |> Map.from_struct() |> replace()
+    struct(struct, values)
+  end
+
   def replace(map) when is_map(map) do
     Map.new(map, fn
       {key, value} -> {replace(key), replace(value)}

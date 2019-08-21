@@ -8,6 +8,12 @@ defmodule ConfigTuples.ProviderElixirTest do
     :ok
   end
 
+  defmodule CustomStruct do
+    defstruct [:domain]
+  end
+
+  alias __MODULE__.CustomStruct
+
   describe "basic tests" do
     test "do not replace data without system tuple" do
       envs = %{}
@@ -238,6 +244,22 @@ defmodule ConfigTuples.ProviderElixirTest do
       expected_config = [
         host: "localhost",
         regex: ~r/.+/
+      ]
+
+      env_scope(envs, fn ->
+        assert_config(config, expected_config)
+      end)
+    end
+
+    test "does not ignore other structs" do
+      envs = %{"HOST" => "localhost"}
+
+      config = [
+        my_struct: %CustomStruct{domain: {:system, "HOST"}}
+      ]
+
+      expected_config = [
+        my_struct: %CustomStruct{domain: "localhost"}
       ]
 
       env_scope(envs, fn ->
