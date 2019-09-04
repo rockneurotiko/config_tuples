@@ -54,6 +54,16 @@ defmodule ConfigTuples.ProviderElixirTest do
       end)
     end
 
+    test "cast to float" do
+      envs = %{"PERCENT" => "33.3"}
+      config = [percent: {:system, "PERCENT", type: :float}]
+      expected_config = [percent: 33.3]
+
+      env_scope(envs, fn ->
+        assert_config(config, expected_config)
+      end)
+    end
+
     test "cast to atom" do
       envs = %{"LOG_LEVEL" => "info", "ADAPTER" => "Elixir.Some.Atom"}
 
@@ -103,11 +113,12 @@ defmodule ConfigTuples.ProviderElixirTest do
       config = [
         string: {:system, "STRING", default: "cool value"},
         integer: {:system, "INTEGER", type: :integer, default: 80},
+        float: {:system, "FLOAT", type: :float, default: 33.3},
         atom: {:system, "ATOM", type: :atom, default: :info},
         boolean: {:system, "BOOL", type: :boolean, default: false}
       ]
 
-      expected_config = [string: "cool value", integer: 80, atom: :info, boolean: false]
+      expected_config = [string: "cool value", integer: 80, float: 33.3, atom: :info, boolean: false]
 
       env_scope(envs, fn ->
         assert_config(config, expected_config)

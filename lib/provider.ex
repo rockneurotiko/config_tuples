@@ -24,7 +24,7 @@ defmodule ConfigTuples.Provider do
   - `{:system, env_name, opts}`
 
   The available options are:
-  - `type`: Type to cast the value, one of `:string`, `:integer`, `:atom`, `:boolean`. Default to `:string`
+  - `type`: Type to cast the value, one of `:string`, `:integer`, `:float`, `:atom`, `:boolean`. Default to `:string`
   - `default`: Default value if the environment variable is not setted. Default no `nil`
   - `transform`: Function to transform the final value, the syntax is {Module, :function}
   - `required`: Set to true if this environment variable needs to be setted, if not setted it will raise an error. Default no `false`
@@ -169,6 +169,7 @@ defmodule ConfigTuples.Provider do
   defp cast(value, :string), do: value
   defp cast(value, :atom), do: String.to_atom(value)
   defp cast(value, :integer), do: String.to_integer(value)
+  defp cast(value, :float), do: String.to_float(value)
   defp cast("true", :boolean), do: true
   defp cast("false", :boolean), do: false
   defp cast(_, :boolean), do: false
