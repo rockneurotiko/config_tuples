@@ -97,7 +97,7 @@ The config tuple always start with `:system`, and can have some options as keywo
 - `{:system, env_name, opts}`
 
 The available options are:
-- `type`: Type to cast the value, one of `:string`, `:integer`, `:atom`, `:boolean`. Default to `:string`
+- `type`: Type to cast the value, one of `:string`, `:integer`, `:float`, `:atom`, `:boolean`. Default to `:string`
 - `default`: Default value if the environment variable is not set. Defaults no `nil`
 - `transform`: Function to transform the final value, the syntax is {Module, :function}
 - `required`: Set to true if this environment variable needs to be set, if not set it will raise an error. Defaults to `false`
