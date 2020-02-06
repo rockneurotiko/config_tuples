@@ -72,9 +72,15 @@ defmodule ConfigTuples.Provider do
   end
 
   defp elixir_provider(config) do
-    new_config = replace(config)
+    new_config = config |> filter_elixir_config() |> replace()
 
     deep_merge(config, new_config)
+  end
+
+  @elixir_apps [:elixir, :kernel]
+
+  defp filter_elixir_config(config) do
+    Keyword.drop(config, @elixir_apps)
   end
 
   defp fix_app_env(app) do
