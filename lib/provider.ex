@@ -142,34 +142,22 @@ defmodule ConfigTuples.Provider do
     required = Keyword.get(opts, :required, false)
     transformer = Keyword.get(opts, :transform)
 
-    env
-    |> get_env_value(type)
-    |> env_required(required)
-    |> env_unwrap_default(default)
-    |> transform(transformer)
+    case fetch_env_value(env, type) do
+      {:ok, env_value} -> transform(env_value, transformer)
+      {:error, _} = error when required == true -> raise ConfigTuples.Error, error
+      {:error, _} -> default
+    end
   end
 
-  defp get_env_value(env, type) do
+  defp fetch_env_value(env, type) do
     case System.get_env(env) do
       nil -> {:error, {:required, env}}
       value -> {:ok, cast(value, type)}
     end
   end
 
-  defp env_required({:error, _} = error, true) do
-    raise ConfigTuples.Error, error
-  end
-
-  defp env_required(env, _other), do: env
-
-  defp env_unwrap_default({:ok, value}, _default), do: value
-  defp env_unwrap_default({:error, _}, default), do: default
-
   defp transform(value, nil), do: value
-
-  defp transform(value, {module, function}) do
-    apply(module, function, [value])
-  end
+  defp transform(value, {module, function}), do: apply(module, function, [value])
 
   defp cast(nil, _type), do: nil
   defp cast(value, :string), do: value
