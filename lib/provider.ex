@@ -124,10 +124,7 @@ defmodule ConfigTuples.Provider do
   end
 
   def replace(map) when is_map(map) do
-    Map.new(map, fn
-      {key, value} -> {replace(key), replace(value)}
-      other -> replace(other)
-    end)
+    Map.new(map, fn {key, value} -> {replace(key), replace(value)} end)
   end
 
   def replace(tuple) when is_tuple(tuple) do
