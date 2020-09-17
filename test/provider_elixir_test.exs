@@ -241,6 +241,21 @@ defmodule ConfigTuples.ProviderElixirTest do
         assert_config(config, expected_config)
       end)
     end
+
+    test "do not transform default value" do
+      envs = %{}
+
+      config = [
+        integer: {:system, "INT_VALUE", default: 2, transform: {__MODULE__, :transform}},
+        bool: {:system, "BOOL_VALUE", default: true, transform: {__MODULE__, :transform}}
+      ]
+
+      expected_config = [integer: 2, bool: true]
+
+      env_scope(envs, fn ->
+        assert_config(config, expected_config)
+      end)
+    end
   end
 
   describe "ignore structs" do
