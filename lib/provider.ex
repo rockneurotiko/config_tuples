@@ -48,7 +48,7 @@ defmodule ConfigTuples.Provider do
     @behaviour Config.Provider
   end
 
-  @ignore_structs [Regex]
+  @default_ignored_structs [Regex]
 
   def init(_cfg) do
     if use_distillery() do
@@ -116,11 +116,13 @@ defmodule ConfigTuples.Provider do
     end)
   end
 
-  def replace(%{__struct__: struct} = value) when struct in @ignore_structs, do: value
-
   def replace(%{__struct__: struct} = value) do
-    values = value |> Map.from_struct() |> replace()
-    struct(struct, values)
+    if struct in Application.get_env(:config_tuples, :ignored_structs, @default_ignored_structs) do
+        value
+      else
+        values = value |> Map.from_struct() |> replace()
+        struct(struct, values)
+    end
   end
 
   def replace(map) when is_map(map) do
