@@ -292,6 +292,25 @@ defmodule ConfigTuples.ProviderElixirTest do
         assert_config(config, expected_config)
       end)
     end
+
+    test "ignores struct in ignore_structs" do
+      envs = %{"HOST" => "localhost"}
+      Application.put_env(:config_tuples, :ignored_structs, [CustomStruct])
+      config = [
+        ignored_structs: [CustomStruct],
+        my_struct: %CustomStruct{domain: {:system, "HOST"}}
+      ]
+
+      expected_config = [
+        ignored_structs: [CustomStruct],
+        my_struct: %CustomStruct{domain: {:system, "HOST"}}
+      ]
+
+      env_scope(envs, fn ->
+        assert_config(config, expected_config)
+        Application.delete_env(:config_tuples, :ignored_structs)
+      end)
+    end
   end
 
   defp assert_config(config, expected) do

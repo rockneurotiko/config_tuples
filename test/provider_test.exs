@@ -312,6 +312,23 @@ defmodule ConfigTuples.ProviderTest do
     end
   end
 
+  test "ignores struct in ignore_structs" do
+    envs = %{"HOST" => "localhost"}
+    config = [
+      ignored_structs: [CustomStruct],
+      my_struct: %CustomStruct{domain: {:system, "HOST"}}
+    ]
+
+    expected_config = [
+      ignored_structs: [CustomStruct],
+      my_struct: %CustomStruct{domain: {:system, "HOST"}}
+    ]
+    env_scope(envs, config, fn ->
+      Provider.init([])
+      assert_config(expected_config)
+    end)
+  end
+
   defp assert_config(config, app \\ @app) do
     config = config |> Keyword.to_list() |> Enum.sort()
 
