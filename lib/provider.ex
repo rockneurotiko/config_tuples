@@ -117,7 +117,9 @@ defmodule ConfigTuples.Provider do
   end
 
   def replace(%{__struct__: struct} = value) do
-    if struct in Application.get_env(:config_tuples, :ignored_structs, @default_ignored_structs) do
+    ignored_structs = @default_ignored_structs ++ Application.get_env(:config_tuples, :ignored_structs, [])
+
+    if struct in ignored_structs do
         value
       else
         values = value |> Map.from_struct() |> replace()

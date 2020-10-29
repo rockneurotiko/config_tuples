@@ -89,6 +89,12 @@ If you are going to have `distillery` in your application dependencies, you will
 config :config_tuples, distillery: false
 ```
 
+### Ignoring custom structs
+A list of structs can be provided that will be ignored (ie: not transformed) by providing the `ignored_structs` config option as below. The `Regex` struct is always ignored by default, regardless of what is specified in the configuration.
+``` elixir
+config :config_tuples, ignored_structs: [MyModule.MyStruct]
+```
+
 ## Config tuples
 
 The config tuple always start with `:system`, and can have some options as keyword, the syntax looks like this:
