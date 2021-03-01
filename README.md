@@ -170,7 +170,7 @@ end
 
 ### Tuples inside of lists
 
-ConfigTuples works recursively in maps and lists, which makes it unable to differenciate a keyword list (like the app config) with an element of the list with a 2-tuple, if you need to trigger ConfigTuples inside a list you need to pass some option as third parameter:
+ConfigTuples works recursively in maps and lists, which makes it unable to differentiate a keyword list (like the app config) with an element of the list with a 2-tuple, if you need to trigger ConfigTuples inside a list you need to pass some option as third parameter:
 
 ``` elixir
 # Assuming that HOST=localhost
