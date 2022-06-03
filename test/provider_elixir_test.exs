@@ -189,7 +189,7 @@ defmodule ConfigTuples.ProviderElixirTest do
   end
 
   describe "required option" do
-    test "raise an error when a variable is required but is not setted" do
+    test "raise an error when a variable is required but is not set" do
       envs = %{}
 
       config = [
@@ -198,7 +198,7 @@ defmodule ConfigTuples.ProviderElixirTest do
         ]
       ]
 
-      message = "environment variable 'PORT' required but is not setted"
+      message = "environment variable 'PORT' required but is not set"
 
       env_scope(envs, fn ->
         assert_raise(ConfigTuples.Error, message, fn ->
@@ -207,7 +207,7 @@ defmodule ConfigTuples.ProviderElixirTest do
       end)
     end
 
-    test "do not raise when a variable is required and is setted" do
+    test "do not raise when a variable is required and is set" do
       envs = %{"PORT" => "4321"}
 
       config = [

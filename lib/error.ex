@@ -18,7 +18,7 @@ defmodule ConfigTuples.Error do
   end
 
   defp format_reason({:required, env_value}),
-    do: "environment variable '#{env_value}' required but is not setted"
+    do: "environment variable '#{env_value}' required but is not set"
 
   defp format_reason(reason), do: "#{inspect(reason)}"
 end

@@ -156,7 +156,7 @@ end
 
 When releasing your app with Distillery, your code is compiled when you execute `mix release`, and the config providers are executed just before booting your code.
 
-This means that if you use module attributes for loading values expected to be replaced by any config provider, it won't be replaced, because that value will be setted on compile time, when doing the release (You can read more about module attributes [here](https://elixir-lang.org/getting-started/module-attributes.html))
+This means that if you use module attributes for loading values expected to be replaced by any config provider, it won't be replaced, because that value will be set at compile time, when doing the release (You can read more about module attributes [here](https://elixir-lang.org/getting-started/module-attributes.html))
 
 Instead of module attributes you can use the following code:
 
