@@ -25,9 +25,9 @@ defmodule ConfigTuples.Provider do
 
   The available options are:
   - `type`: Type to cast the value, one of `:string`, `:integer`, `:float`, `:atom`, `:boolean`. Default to `:string`
-  - `default`: Default value if the environment variable is not setted. Default no `nil`
+  - `default`: Default value if the environment variable is not set. Default no `nil`
   - `transform`: Function to transform the final value, the syntax is {Module, :function}
-  - `required`: Set to true if this environment variable needs to be setted, if not setted it will raise an error. Default no `false`
+  - `required`: Set to true if this environment variable needs to be set, if not set it will raise an error. Default no `false`
 
   For example:
   - `{:system, "MYSQL_PORT", type: :integer, default: 3306}`
